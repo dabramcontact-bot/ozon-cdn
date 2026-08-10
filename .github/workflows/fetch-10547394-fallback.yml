@@ -1,0 +1,56 @@
+name: Build 10547394 exact fallback photos
+on:
+  push:
+    paths: ['.github/workflows/fetch-10547394-fallback.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install -q requests pillow
+      - shell: bash
+        run: |
+          python3 - <<'PY'
+          import io,re,html,json
+          from pathlib import Path
+          import requests
+          from PIL import Image
+          page='https://prom.ua/m-443525381329476237-bunker-poroshkopriemnika-dlya.html'
+          ua='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/149 Safari/537.36'
+          r=requests.get(page,headers={'User-Agent':ua},timeout=20);r.raise_for_status();txt=r.text
+          assert '773521403500' in txt
+          urls=[]
+          for pat in [r'https?:\\?/\\?/images\.prom\.ua/[^"\'<> ]+?\.(?:jpg|jpeg|png|webp)',r'https?://images\.prom\.ua/[^"\'<> ]+?\.(?:jpg|jpeg|png|webp)']:
+            for u in re.findall(pat,txt,re.I):
+              u=html.unescape(u).replace('\\/','/').split('?')[0]
+              if u not in urls:urls.append(u)
+          ims=[]
+          for u in urls[:30]:
+            try:
+              x=requests.get(u,headers={'User-Agent':ua},timeout=15);x.raise_for_status();im=Image.open(io.BytesIO(x.content));im.load()
+              if im.width>=150 and im.height>=150:ims.append((u,im.copy()))
+            except:pass
+          if not ims:raise RuntimeError('no exact images')
+          def make(im,z=1):
+            im=im.convert('RGB');w,h=im.size
+            if z>1:
+              nw=int(w/z);nh=int(h/z);l=(w-nw)//2;t=(h-nh)//2;im=im.crop((l,t,l+nw,t+nh))
+            im.thumbnail((860,1160),Image.Resampling.LANCZOS);c=Image.new('RGB',(900,1200),'white');c.paste(im,((900-im.width)//2,(1200-im.height)//2));return c
+          d=Path('products/10547394/3x4');d.mkdir(parents=True,exist_ok=True);built=[]
+          for u,im in ims[:8]:built.append((u,make(im)))
+          z=1.06
+          while len(built)<8:
+            u,im=ims[len(built)%len(ims)];built.append((u,make(im,z)));z+=.05
+          for i,(u,im) in enumerate(built[:8],1):im.save(d/f'{i}.jpg','JPEG',quality=92,optimize=True)
+          (d.parent/'source.json').write_text(json.dumps({'page':page,'part':'773521403500','source_images':[u for u,_ in ims],'built_from':[u for u,_ in built[:8]]},ensure_ascii=False,indent=2),'utf-8')
+          print('originals',len(ims))
+          PY
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add products/10547394
+          git commit -m 'Add exact 10547394 3x4 photos' || exit 0
+          git push
