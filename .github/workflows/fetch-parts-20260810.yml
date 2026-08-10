@@ -1,0 +1,96 @@
+name: Build exact parts photos 20260810
+on:
+  push:
+    paths: ['.github/workflows/fetch-parts-20260810.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install -q requests beautifulsoup4 pillow
+      - name: Fetch exact 21vek pages and build 3x4
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import io,json,re,html
+          from pathlib import Path
+          from urllib.parse import urljoin,quote
+          import requests
+          from bs4 import BeautifulSoup
+          from PIL import Image
+          P={'10432502':'90167452603','10249466':'KM','10547394':'773521403500','10249465':'FPS-18','10252506':'768563100700','10252502':'772318100701','10233486':'90167452601','10531230':'65180206','9857156':'28.02.037.074','10418655':'MyWay Let 1.0 250','10433199':'MyWay Truck 350'}
+          S=requests.Session(); S.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/149 Safari/537.36','Accept-Language':'ru-RU,ru;q=0.9'})
+          def get(u):
+            r=S.get(u,timeout=25,allow_redirects=True); r.raise_for_status(); return r
+          def find(sku,expected):
+            r=get('https://www.21vek.by/search/?term='+quote(sku))
+            if r.url.split('?')[0].endswith('.html') and sku in r.text: return r.url,r.text
+            so=BeautifulSoup(r.text,'html.parser'); seen=[]
+            for a in so.find_all('a',href=True):
+              u=urljoin(r.url,a['href'])
+              if '21vek.by' in u and u.split('?')[0].endswith('.html') and u not in seen: seen.append(u)
+            for u in seen[:10]:
+              try:
+                rr=get(u)
+                if sku in rr.text: return rr.url,rr.text
+              except: pass
+            raise RuntimeError('exact page not found')
+          def imgs(txt,base):
+            so=BeautifulSoup(txt,'html.parser'); out=[]
+            for sc in so.find_all('script',type='application/ld+json'):
+              try:d=json.loads(sc.string or '')
+              except:continue
+              st=d if isinstance(d,list) else [d]
+              while st:
+                x=st.pop()
+                if isinstance(x,list): st+=x; continue
+                if not isinstance(x,dict): continue
+                if '@graph' in x: st.append(x['@graph'])
+                if x.get('@type')=='Product':
+                  ims=x.get('image') or []; ims=[ims] if isinstance(ims,str) else ims
+                  for u in ims:
+                    u=urljoin(base,str(u));
+                    if u not in out: out.append(u)
+            for u in re.findall(r'https?:\\?/\\?/cdn21vek\.by/[^"\'<> ]+?\.(?:jpg|jpeg|png|webp)',txt,re.I):
+              u=html.unescape(u).replace('\\/','/').split('?')[0]
+              if u not in out: out.append(u)
+            return out
+          def make(im,zoom=1,ox=.5,oy=.5):
+            im=im.convert('RGB')
+            if zoom>1:
+              w,h=im.size; nw=int(w/zoom); nh=int(h/zoom); l=int((w-nw)*ox); t=int((h-nh)*oy); im=im.crop((l,t,l+nw,t+nh))
+            im.thumbnail((860,1160),Image.Resampling.LANCZOS); c=Image.new('RGB',(900,1200),'white'); c.paste(im,((900-im.width)//2,(1200-im.height)//2)); return c
+          vars=[(1,.5,.5),(1.08,.5,.5),(1.14,.5,.5),(1.20,.5,.5),(1.14,.25,.5),(1.14,.75,.5),(1.14,.5,.25),(1.14,.5,.75)]
+          rep={}
+          for sku,exp in P.items():
+            d=Path('products')/sku/'3x4'; d.mkdir(parents=True,exist_ok=True)
+            try:
+              page,txt=find(sku,exp); sources=[]
+              for u in imgs(txt,page)[:20]:
+                try:
+                  rr=get(u); im=Image.open(io.BytesIO(rr.content)); im.load()
+                  if im.width>=80 and im.height>=80:sources.append((u,im.copy()))
+                except:pass
+              if not sources: raise RuntimeError('no usable image')
+              built=[]
+              for u,im in sources[:8]: built.append((u,make(im)))
+              j=1
+              while len(built)<8:
+                u,im=sources[len(built)%len(sources)]; z,x,y=vars[j%len(vars)]; j+=1; built.append((u,make(im,z,x,y)))
+              for i,(u,im) in enumerate(built[:8],1): im.save(d/f'{i}.jpg','JPEG',quality=92,optimize=True)
+              (d.parent/'source.json').write_text(json.dumps({'page':page,'expected':exp,'source_images':[u for u,_ in sources],'built_from':[u for u,_ in built[:8]]},ensure_ascii=False,indent=2),'utf-8')
+              rep[sku]={'ok':True,'originals':len(sources),'page':page}
+            except Exception as e: rep[sku]={'ok':False,'error':str(e)}
+          Path('batch_20260810.json').write_text(json.dumps(rep,ensure_ascii=False,indent=2),'utf-8'); print(json.dumps(rep,ensure_ascii=False,indent=2))
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add products batch_20260810.json
+          git commit -m 'Add exact parts 3x4 photos' || exit 0
+          git push
