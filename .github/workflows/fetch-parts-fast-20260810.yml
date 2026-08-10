@@ -1,0 +1,95 @@
+name: Fast exact parts photos 20260810
+on:
+  push:
+    paths: ['.github/workflows/fetch-parts-fast-20260810.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install -q requests beautifulsoup4 pillow
+      - shell: bash
+        run: |
+          python3 - <<'PY'
+          import io,json,re,html,concurrent.futures
+          from pathlib import Path
+          from urllib.parse import urljoin,quote
+          import requests
+          from bs4 import BeautifulSoup
+          from PIL import Image
+          P={'10432502':'90167452603','10249466':'KM','10547394':'773521403500','10249465':'FPS-18','10252506':'768563100700','10252502':'772318100701','10233486':'90167452601','10531230':'65180206','9857156':'28.02.037.074','10418655':'MyWay Let 1.0 250','10433199':'MyWay Truck 350'}
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/149 Safari/537.36'
+          def req(u):
+            return requests.get(u,headers={'User-Agent':UA,'Accept-Language':'ru-RU,ru;q=0.9'},timeout=10,allow_redirects=True)
+          def get_page(sku):
+            r=req('https://www.21vek.by/search/?term='+quote(sku)); r.raise_for_status()
+            if r.url.split('?')[0].endswith('.html') and sku in r.text:return r.url,r.text
+            so=BeautifulSoup(r.text,'html.parser'); cand=[]
+            for a in so.find_all('a',href=True):
+              u=urljoin(r.url,a['href'])
+              if '21vek.by' in u and u.split('?')[0].endswith('.html') and u not in cand:cand.append(u)
+            for u in cand[:5]:
+              try:
+                x=req(u)
+                if x.ok and sku in x.text:return x.url,x.text
+              except:pass
+            raise RuntimeError('exact page not found')
+          def urls(txt,base):
+            out=[]; so=BeautifulSoup(txt,'html.parser')
+            for sc in so.find_all('script',type='application/ld+json'):
+              try:d=json.loads(sc.string or '')
+              except:continue
+              st=d if isinstance(d,list) else [d]
+              while st:
+                x=st.pop()
+                if isinstance(x,list):st.extend(x);continue
+                if not isinstance(x,dict):continue
+                if '@graph' in x:st.append(x['@graph'])
+                if x.get('@type')=='Product':
+                  z=x.get('image') or [];z=[z] if isinstance(z,str) else z
+                  for u in z:
+                    u=urljoin(base,str(u));
+                    if u not in out:out.append(u)
+            for u in re.findall(r'https?:\\?/\\?/cdn21vek\.by/[^"\'<> ]+?\.(?:jpg|jpeg|png|webp)',txt,re.I):
+              u=html.unescape(u).replace('\\/','/').split('?')[0]
+              if u not in out:out.append(u)
+            return out
+          def pad(im,z=1,ox=.5,oy=.5):
+            im=im.convert('RGB');w,h=im.size
+            if z>1:
+              nw=max(1,int(w/z));nh=max(1,int(h/z));l=max(0,min(w-nw,int((w-nw)*ox)));t=max(0,min(h-nh,int((h-nh)*oy)));im=im.crop((l,t,l+nw,t+nh))
+            im.thumbnail((860,1160),Image.Resampling.LANCZOS);c=Image.new('RGB',(900,1200),'white');c.paste(im,((900-im.width)//2,(1200-im.height)//2));return c
+          VAR=[(1,.5,.5),(1.08,.5,.5),(1.14,.5,.5),(1.20,.5,.5),(1.14,.25,.5),(1.14,.75,.5),(1.14,.5,.25),(1.14,.5,.75)]
+          def one(item):
+            sku,exp=item;d=Path('products')/sku/'3x4';d.mkdir(parents=True,exist_ok=True)
+            try:
+              page,txt=get_page(sku); ims=[]
+              for u in urls(txt,page)[:12]:
+                try:
+                  x=req(u)
+                  if not x.ok:continue
+                  im=Image.open(io.BytesIO(x.content));im.load()
+                  if im.width>=80 and im.height>=80:ims.append((u,im.copy()))
+                except:pass
+              if not ims:raise RuntimeError('no usable image')
+              built=[]
+              for u,im in ims[:8]:built.append((u,pad(im)))
+              k=1
+              while len(built)<8:
+                u,im=ims[len(built)%len(ims)];z,a,b=VAR[k%8];k+=1;built.append((u,pad(im,z,a,b)))
+              for i,(u,im) in enumerate(built[:8],1):im.save(d/f'{i}.jpg','JPEG',quality=92,optimize=True)
+              (d.parent/'source.json').write_text(json.dumps({'page':page,'expected':exp,'source_images':[u for u,_ in ims],'built_from':[u for u,_ in built[:8]]},ensure_ascii=False,indent=2),'utf-8')
+              return sku,{'ok':True,'page':page,'originals':len(ims)}
+            except Exception as e:return sku,{'ok':False,'error':str(e)}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex: rep=dict(ex.map(one,P.items()))
+          Path('batch_20260810_fast.json').write_text(json.dumps(rep,ensure_ascii=False,indent=2),'utf-8');print(json.dumps(rep,ensure_ascii=False,indent=2))
+          PY
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add products batch_20260810_fast.json
+          git commit -m 'Add exact parts 3x4 photos fast' || exit 0
+          git push
