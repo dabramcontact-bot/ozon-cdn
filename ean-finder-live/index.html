@@ -2,45 +2,82 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EAN Finder</title>
+<title>EAN Finder — поиск по всему интернету</title>
 <style>
-:root{--bg:#080b13;--panel:#111827;--panel2:#182033;--line:#273247;--text:#f7f9fc;--muted:#92a0b7;--a:#7c5cff;--ok:#45d49b}
+:root{--bg:#080b13;--panel:#111827;--line:#273247;--text:#f7f9fc;--muted:#92a0b7;--accent:#7c5cff;--ok:#45d49b}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,rgba(124,92,255,.22),transparent 32%),radial-gradient(circle at 90% 8%,rgba(45,212,191,.10),transparent 27%),linear-gradient(#080b13,#0b101a 58%,#080b13);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
-a{color:inherit;text-decoration:none}.wrap{width:min(1120px,calc(100% - 30px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-weight:900;display:flex;gap:10px;align-items:center}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#7658ff,#9b7cff,#2dd4bf);box-shadow:0 12px 32px rgba(124,92,255,.3)}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:500}.pill{font-size:12px;color:#b7c2d5;border:1px solid var(--line);padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.025)}
-.hero{text-align:center;padding:62px 0 28px}.tag{display:inline-block;border:1px solid rgba(124,92,255,.35);background:rgba(124,92,255,.1);color:#c9beff;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800}.hero h1{font-size:clamp(42px,7vw,72px);line-height:.98;letter-spacing:-.055em;margin:20px 0 17px}.hero p{color:var(--muted);max-width:730px;margin:auto;line-height:1.6;font-size:17px}
-.search{max-width:860px;margin:30px auto 0;padding:10px;display:flex;gap:10px;border:1px solid rgba(255,255,255,.11);background:rgba(13,18,30,.92);border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.34)}.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;padding:16px;font-size:18px;letter-spacing:.05em}.search input::placeholder{letter-spacing:0;color:#5f6d84}.search button{border:0;border-radius:15px;padding:0 24px;min-height:54px;background:linear-gradient(135deg,#7254ff,#8b68ff);color:#fff;font-weight:850;cursor:pointer}.search button:disabled{opacity:.6;cursor:progress}.hint{font-size:12px;color:#68768d;margin-top:12px}.hint button{border:0;background:none;color:#aa9cff;font-weight:800;cursor:pointer}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:22px;padding:28px 0 70px;align-items:start}.panel{border:1px solid var(--line);background:rgba(17,24,39,.88);border-radius:24px;box-shadow:0 18px 55px rgba(0,0,0,.16);overflow:hidden}.state{padding:55px 28px;text-align:center}.state .ico{width:70px;height:70px;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:21px;display:grid;place-items:center;margin:0 auto 17px;font-size:30px;color:#8b98ad}.state h2{margin:0}.state p{color:var(--muted);font-size:14px;line-height:1.6;max-width:520px;margin:10px auto 0}.spin{width:31px;height:31px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:#8b6cff;animation:s .8s linear infinite;margin:0 auto 15px}@keyframes s{to{transform:rotate(360deg)}}#loading,#result,#error{display:none}
-.head{display:grid;grid-template-columns:205px minmax(0,1fr);gap:24px;padding:24px;border-bottom:1px solid var(--line)}.photo{aspect-ratio:1;border:1px solid var(--line);border-radius:19px;background:rgba(255,255,255,.03);display:grid;place-items:center;overflow:hidden}.photo img{width:100%;height:100%;object-fit:contain;background:#fff}.status{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(69,212,155,.25);background:rgba(69,212,155,.08);color:#78e5b8;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}.dot{width:7px;height:7px;border-radius:50%;background:currentColor}.head h2{font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.035em;margin:13px 0 7px}.sub{color:#b1bdcf}.code{display:inline-block;font-family:ui-monospace,monospace;border:1px solid var(--line);background:rgba(255,255,255,.03);padding:8px 10px;border-radius:9px;margin-top:17px}.desc{color:var(--muted);font-size:14px;line-height:1.6;margin-top:16px}.sec{padding:22px 24px}.sec+.sec{border-top:1px solid var(--line)}.sec h3{margin:0 0 14px;font-size:15px}.details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.detail{border:1px solid var(--line);background:rgba(255,255,255,.025);padding:13px;border-radius:14px;min-height:76px}.detail span{display:block;color:#748198;font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;margin-bottom:7px}.detail b{font-size:14px;line-height:1.4;overflow-wrap:anywhere}.web{display:block;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:12px 13px;margin-top:8px}.web:hover{background:rgba(255,255,255,.05)}.web b{font-size:14px}.web small{display:block;color:#75d7c6;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.web p{color:var(--muted);font-size:12px;line-height:1.5;margin:6px 0 0}
-.side{padding:18px}.side h3{margin:0;font-size:15px}.side p{color:var(--muted);font-size:12px;line-height:1.55;margin:6px 0 14px}.market{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:13px;background:rgba(255,255,255,.02);margin-top:8px;font-size:13px;font-weight:800}.market:hover{background:rgba(255,255,255,.05)}.mleft{display:flex;align-items:center;gap:9px}.mini{width:28px;height:28px;border-radius:9px;background:#fff;color:#111827;display:grid;place-items:center;font-size:10px}.notice{margin-top:18px;border-top:1px solid var(--line);padding-top:15px;color:#8794aa;font-size:12px;line-height:1.55}footer{text-align:center;color:#58667a;font-size:11px;padding-bottom:35px}
-@media(max-width:840px){.grid{grid-template-columns:1fr}.head{grid-template-columns:150px 1fr}.details{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.pill{display:none}.hero{padding-top:44px}.search{display:block}.search button{width:100%;margin-top:7px}.head{grid-template-columns:1fr}.photo{max-width:230px}.details{grid-template-columns:1fr}}
+a{color:inherit;text-decoration:none}.wrap{width:min(1160px,calc(100% - 30px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-weight:900;display:flex;gap:10px;align-items:center}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#7658ff,#9b7cff,#2dd4bf);box-shadow:0 12px 32px rgba(124,92,255,.3)}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:500}.pill{font-size:12px;color:#b7c2d5;border:1px solid var(--line);padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.025)}
+.hero{text-align:center;padding:62px 0 28px}.tag{display:inline-block;border:1px solid rgba(124,92,255,.35);background:rgba(124,92,255,.1);color:#c9beff;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800}.hero h1{font-size:clamp(42px,7vw,72px);line-height:.98;letter-spacing:-.055em;margin:20px 0 17px}.hero p{color:var(--muted);max-width:780px;margin:auto;line-height:1.6;font-size:17px}
+.search{max-width:880px;margin:30px auto 0;padding:10px;display:flex;gap:10px;border:1px solid rgba(255,255,255,.11);background:rgba(13,18,30,.92);border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.34)}.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;padding:16px;font-size:18px;letter-spacing:.05em}.search input::placeholder{letter-spacing:0;color:#5f6d84}.search button{border:0;border-radius:15px;padding:0 24px;min-height:54px;background:linear-gradient(135deg,#7254ff,#8b68ff);color:#fff;font-weight:850;cursor:pointer}.search button:disabled{opacity:.6;cursor:progress}.hint{font-size:12px;color:#68768d;margin-top:12px}.hint button{border:0;background:none;color:#aa9cff;font-weight:800;cursor:pointer}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 315px;gap:22px;padding:28px 0 70px;align-items:start}.panel{border:1px solid var(--line);background:rgba(17,24,39,.88);border-radius:24px;box-shadow:0 18px 55px rgba(0,0,0,.16);overflow:hidden}.state{padding:55px 28px;text-align:center}.state .ico{width:70px;height:70px;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:21px;display:grid;place-items:center;margin:0 auto 17px;font-size:30px;color:#8b98ad}.state h2{margin:0}.state p{color:var(--muted);font-size:14px;line-height:1.6;max-width:560px;margin:10px auto 0}.spin{width:31px;height:31px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:#8b6cff;animation:s .8s linear infinite;margin:0 auto 15px}@keyframes s{to{transform:rotate(360deg)}}#loading,#result,#error{display:none}
+.head{display:grid;grid-template-columns:205px minmax(0,1fr);gap:24px;padding:24px;border-bottom:1px solid var(--line)}.photo{aspect-ratio:1;border:1px solid var(--line);border-radius:19px;background:rgba(255,255,255,.03);display:grid;place-items:center;overflow:hidden}.photo img{width:100%;height:100%;object-fit:contain;background:#fff}.status{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(69,212,155,.25);background:rgba(69,212,155,.08);color:#78e5b8;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}.dot{width:7px;height:7px;border-radius:50%;background:currentColor}.head h2{font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.035em;margin:13px 0 7px}.sub{color:#b1bdcf}.code{display:inline-block;font-family:ui-monospace,monospace;border:1px solid var(--line);background:rgba(255,255,255,.03);padding:8px 10px;border-radius:9px;margin-top:17px}.desc{color:var(--muted);font-size:14px;line-height:1.6;margin-top:16px}
+.sec{padding:22px 24px}.sec+.sec{border-top:1px solid var(--line)}.sec h3{margin:0 0 14px;font-size:15px}.details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.detail{border:1px solid var(--line);background:rgba(255,255,255,.025);padding:13px;border-radius:14px;min-height:76px}.detail span{display:block;color:#748198;font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;margin-bottom:7px}.detail b{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.web{display:block;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:13px 14px;margin-top:9px}.web:hover{background:rgba(255,255,255,.05);border-color:#344158}.webtop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.web b{font-size:14px;line-height:1.35}.web small{display:block;color:#75d7c6;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.web p{color:var(--muted);font-size:12px;line-height:1.5;margin:7px 0 0}.exact{font-size:10px;padding:4px 7px;border-radius:999px;background:rgba(69,212,155,.08);color:#76e2b7;border:1px solid rgba(69,212,155,.22);white-space:nowrap}
+.side{padding:18px}.side h3{margin:0;font-size:15px}.side p{color:var(--muted);font-size:12px;line-height:1.55;margin:6px 0 14px}.engine{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:13px;background:rgba(255,255,255,.02);margin-top:8px;font-size:13px;font-weight:800}.engine:hover{background:rgba(255,255,255,.05)}.eleft{display:flex;align-items:center;gap:9px}.mini{width:28px;height:28px;border-radius:9px;background:#fff;color:#111827;display:grid;place-items:center;font-size:10px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.stat{border:1px solid var(--line);border-radius:13px;padding:12px;background:rgba(255,255,255,.02)}.stat strong{display:block;font-size:22px}.stat span{color:#79869b;font-size:10px;text-transform:uppercase;letter-spacing:.05em}.notice{margin-top:18px;border-top:1px solid var(--line);padding-top:15px;color:#8794aa;font-size:12px;line-height:1.55}footer{text-align:center;color:#58667a;font-size:11px;padding-bottom:35px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}.head{grid-template-columns:150px 1fr}.details{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.pill{display:none}.hero{padding-top:44px}.search{display:block}.search button{width:100%;margin-top:7px}.head{grid-template-columns:1fr}.photo{max-width:230px}.details{grid-template-columns:1fr}}
 </style></head>
 <body><div class="wrap">
-<header><div class="brand"><div class="logo">▥</div><div>EAN Finder<small>Поиск товаров по штрихкоду</small></div></div><div class="pill">Рабочая онлайн‑версия</div></header>
-<section class="hero"><div class="tag">● EAN / UPC / GTIN</div><h1>Найди товар<br>по штрихкоду</h1><p>Проверяю открытые товарные базы и точные совпадения EAN в интернете. Если каталог не знает товар, сайт всё равно пытается найти его на сайтах магазинов.</p>
-<form class="search" id="form"><input id="ean" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="Например, 8592223035492"><button id="go">Найти товар</button></form><div class="hint">EAN‑8, UPC‑A, EAN‑13, GTIN‑14 · <button id="ex">вставить пример</button></div></section>
-<div class="grid"><main class="panel">
-<div class="state" id="empty"><div class="ico">▥</div><h2>Введите EAN товара</h2><p>Сайт объединит найденные название, бренд, категорию, фото и ссылки на страницы, где встречается этот штрихкод.</p></div>
-<div class="state" id="loading"><div class="spin"></div><h2>Ищу товар…</h2><p>Проверяю несколько источников. Это может занять 5–15 секунд.</p></div>
-<div class="state" id="error"><div class="ico">!</div><h2 id="errTitle">Не найдено</h2><p id="errText"></p></div>
-<div id="result"><div class="head"><div class="photo" id="photo">▥</div><div><div class="status"><span class="dot"></span><span id="status"></span></div><h2 id="title"></h2><div class="sub" id="brand"></div><div class="code" id="code"></div><div class="desc" id="desc"></div></div></div>
-<div class="sec"><h3>Характеристики</h3><div class="details" id="details"></div></div>
-<div class="sec" id="webSec"><h3>Где найден EAN</h3><div id="web"></div></div></div>
+<header><div class="brand"><div class="logo">▥</div><div>EAN Finder<small>Поиск товара по всему интернету</small></div></div><div class="pill">Не привязан к маркетплейсам</div></header>
+
+<section class="hero">
+  <div class="tag">● WEB SEARCH · EAN / UPC / GTIN</div>
+  <h1>Найди товар<br>во всём интернете</h1>
+  <p>Введи штрихкод — сайт ищет точное совпадение EAN на сайтах магазинов, производителей, в каталогах, прайсах и других индексируемых страницах интернета.</p>
+  <form class="search" id="form"><input id="ean" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="Например, 8592223035492"><button id="go">Искать в интернете</button></form>
+  <div class="hint">EAN‑8, UPC‑A, EAN‑13, GTIN‑14 · <button id="ex">вставить пример</button></div>
+</section>
+
+<div class="grid">
+<main class="panel">
+  <div class="state" id="empty"><div class="ico">⌕</div><h2>Введите EAN товара</h2><p>Сначала сайт проверит товарные базы, затем сделает несколько точных веб‑запросов и соберёт реальные страницы, где встречается этот код.</p></div>
+  <div class="state" id="loading"><div class="spin"></div><h2>Ищу по всему интернету…</h2><p>Проверяю каталоги и несколько вариантов веб‑поиска. Это может занять 5–20 секунд.</p></div>
+  <div class="state" id="error"><div class="ico">!</div><h2 id="errTitle">Не найдено</h2><p id="errText"></p></div>
+
+  <div id="result">
+    <div class="head">
+      <div class="photo" id="photo">▥</div>
+      <div>
+        <div class="status"><span class="dot"></span><span id="status"></span></div>
+        <h2 id="title"></h2>
+        <div class="sub" id="brand"></div>
+        <div class="code" id="code"></div>
+        <div class="desc" id="desc"></div>
+      </div>
+    </div>
+    <div class="sec"><h3>Собранные данные о товаре</h3><div class="details" id="details"></div></div>
+    <div class="sec" id="webSec"><h3>Страницы в интернете, где найден EAN</h3><div id="web"></div></div>
+  </div>
 </main>
-<aside class="panel side"><h3>Маркетплейсы</h3><p>Быстрый поиск введённого штрихкода.</p><div id="markets"></div><div class="notice">Поиск использует публичные каталоги. Для редких товаров важнее блок «Где найден EAN»: он показывает реальные страницы из интернета.</div></aside></div>
-<footer>EAN Finder</footer></div>
+
+<aside class="panel side">
+  <h3>Поиск в интернете</h3>
+  <p>Это не поиск по маркетплейсам. Дополнительно можно открыть тот же точный запрос в обычных поисковиках.</p>
+  <div id="engines"></div>
+  <div class="stats">
+    <div class="stat"><strong id="domainCount">0</strong><span>сайтов</span></div>
+    <div class="stat"><strong id="resultCount">0</strong><span>страниц</span></div>
+  </div>
+  <div class="notice">Сайт ищет сам и показывает найденные страницы ниже. Кнопки поисковиков здесь только как дополнительная ручная проверка, если нужная страница не попала в автоматическую выдачу.</div>
+</aside>
+</div>
+<footer>EAN Finder · поиск по открытым источникам интернета</footer>
+</div>
+
 <script>
-const $=q=>document.querySelector(q), input=$('#ean'), go=$('#go');
+const $=q=>document.querySelector(q),input=$('#ean'),go=$('#go');
 const panels=[$('#empty'),$('#loading'),$('#result'),$('#error')];
 function show(x){panels.forEach(p=>p.style.display='none');x.style.display='block'}
 function norm(v){return String(v||'').replace(/\D/g,'')}
 function valid(c){if(![8,12,13,14].includes(c.length))return false;let d=c.split('').map(Number),k=d.pop(),s=0;for(let i=d.length-1,p=0;i>=0;i--,p++)s+=d[i]*(p%2===0?3:1);return((10-s%10)%10)===k}
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function drawMarkets(ean){const a=[['OZ','Ozon','https://www.ozon.ru/search/?text='],['WB','Wildberries','https://www.wildberries.ru/catalog/0/search.aspx?search='],['ЯМ','Яндекс Маркет','https://market.yandex.ru/search?text='],['21','21vek','https://www.21vek.by/search/?term=']];$('#markets').innerHTML=a.map(x=>'<a class="market" target="_blank" rel="noopener" href="'+x[2]+encodeURIComponent(ean)+'"><span class="mleft"><i class="mini">'+x[0]+'</i>'+x[1]+'</span><span>↗</span></a>').join('')}
-drawMarkets('');
-async function fetchText(url,timeout=9000){const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw Error(r.status);return await r.text()}finally{clearTimeout(t)}}
-async function fetchJson(url){const c=new AbortController(),t=setTimeout(()=>c.abort(),9000);try{let r=await fetch(url,{signal:c.signal,headers:{Accept:'application/json'}});if(!r.ok)throw Error(r.status);return await r.json()}finally{clearTimeout(t)}}
-async function jsonWithProxy(url){try{return await fetchJson(url)}catch(e){const p='https://api.allorigins.win/raw?url='+encodeURIComponent(url);return JSON.parse(await fetchText(p,11000))}}
-async function textWithProxy(url){try{return await fetchText(url)}catch(e){return await fetchText('https://api.allorigins.win/raw?url='+encodeURIComponent(url),12000)}}
+function engines(ean){const q=encodeURIComponent('"'+ean+'"'),a=[['G','Google','https://www.google.com/search?q='+q],['B','Bing','https://www.bing.com/search?q='+q],['Y','Яндекс','https://yandex.ru/search/?text='+q],['D','DuckDuckGo','https://duckduckgo.com/?q='+q]];$('#engines').innerHTML=a.map(x=>'<a class="engine" target="_blank" rel="noopener" href="'+x[2]+'"><span class="eleft"><i class="mini">'+x[0]+'</i>'+x[1]+'</span><span>↗</span></a>').join('')}
+engines('');
+
+async function fetchText(url,timeout=9500){const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal,headers:{Accept:'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}});if(!r.ok)throw Error(r.status);return await r.text()}finally{clearTimeout(t)}}
+async function fetchJson(url,timeout=9500){const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal,headers:{Accept:'application/json'}});if(!r.ok)throw Error(r.status);return await r.json()}finally{clearTimeout(t)}}
+async function proxyText(url){try{return await fetchText(url)}catch(e){return await fetchText('https://api.allorigins.win/raw?url='+encodeURIComponent(url),13000)}}
+async function proxyJson(url){try{return await fetchJson(url)}catch(e){return JSON.parse(await proxyText(url))}}
+
 const facts=[
  ['Open Products Facts','https://world.openproductsfacts.org'],
  ['Open Food Facts','https://world.openfoodfacts.org'],
@@ -48,21 +85,91 @@ const facts=[
  ['Open Pet Food Facts','https://world.openpetfoodfacts.org']
 ];
 function clean(v){return Array.isArray(v)?v.filter(Boolean).join(', '):String(v||'').replace(/\s+/g,' ').trim()}
-async function oneFact(name,base,ean){try{const fields='product_name,product_name_ru,product_name_en,generic_name,brands,categories,quantity,image_front_url,image_url,countries,manufacturing_places';const d=await jsonWithProxy(base+'/api/v2/product/'+ean+'.json?fields='+fields);if(Number(d.status)!==1||!d.product)return null;const p=d.product;return{name,title:clean(p.product_name_ru||p.product_name_en||p.product_name||p.generic_name),brand:clean(p.brands),category:clean(p.categories),quantity:clean(p.quantity),image:p.image_front_url||p.image_url||'',description:clean(p.generic_name),countries:clean(p.countries),manufacturing:clean(p.manufacturing_places)}}catch(e){return null}}
-async function upc(ean){try{const d=await jsonWithProxy('https://api.upcitemdb.com/prod/trial/lookup?upc='+ean);const x=d&&d.items&&d.items[0];if(!x)return null;return{name:'UPCitemdb',title:clean(x.title),brand:clean(x.brand),category:clean(x.category),image:(x.images||[])[0]||'',description:clean(x.description),model:clean(x.model),weight:clean(x.weight),dimension:clean(x.dimension)}}catch(e){return null}}
+async function oneFact(name,base,ean){try{
+ const fields='product_name,product_name_ru,product_name_en,generic_name,brands,categories,quantity,image_front_url,image_url,countries,manufacturing_places';
+ const d=await proxyJson(base+'/api/v2/product/'+ean+'.json?fields='+fields);
+ if(Number(d.status)!==1||!d.product)return null;
+ const p=d.product;
+ return{name,title:clean(p.product_name_ru||p.product_name_en||p.product_name||p.generic_name),brand:clean(p.brands),category:clean(p.categories),quantity:clean(p.quantity),image:p.image_front_url||p.image_url||'',description:clean(p.generic_name),countries:clean(p.countries),manufacturing:clean(p.manufacturing_places)}
+}catch(e){return null}}
+async function upc(ean){try{
+ const d=await proxyJson('https://api.upcitemdb.com/prod/trial/lookup?upc='+ean),x=d&&d.items&&d.items[0];
+ if(!x)return null;
+ return{name:'UPCitemdb',title:clean(x.title),brand:clean(x.brand),category:clean(x.category),image:(x.images||[])[0]||'',description:clean(x.description),model:clean(x.model),weight:clean(x.weight),dimension:clean(x.dimension)}
+}catch(e){return null}}
+
 function decode(s=''){return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'")}
 function tag(b,n){const m=b.match(new RegExp('<'+n+'[^>]*>([\\s\\S]*?)<\\/'+n+'>','i'));return m?decode(m[1]).replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim():''}
-async function webSearch(ean){const url='https://www.bing.com/search?q='+encodeURIComponent('"'+ean+'"')+'&format=rss';try{const xml=await textWithProxy(url);const bs=xml.match(/<item>[\s\S]*?<\/item>/gi)||[];return bs.slice(0,10).map(b=>{const u=tag(b,'link'),ti=tag(b,'title'),sn=tag(b,'description');let dm='';try{dm=new URL(u).hostname.replace(/^www\./,'')}catch(e){}return{url:u,title:ti,snippet:sn,domain:dm,exact:(ti+' '+sn).includes(ean)}}).filter(x=>/^https?:\/\//.test(x.url))}catch(e){return[]}}
+function normalizeWeb(rows,ean){const seen=new Set();return rows.filter(x=>{if(!x||!/^https?:\/\//.test(x.url)||seen.has(x.url))return false;seen.add(x.url);return true}).map(x=>({...x,exact:(x.title+' '+x.snippet+' '+x.url).includes(ean)}))}
+async function bingQuery(query,ean){try{
+ const xml=await proxyText('https://www.bing.com/search?q='+encodeURIComponent(query)+'&format=rss');
+ const bs=xml.match(/<item>[\s\S]*?<\/item>/gi)||[];
+ return bs.map(b=>{const url=tag(b,'link'),title=tag(b,'title'),snippet=tag(b,'description');let domain='';try{domain=new URL(url).hostname.replace(/^www\./,'')}catch(e){}return{url,title,snippet,domain,engine:'Bing'}})
+}catch(e){return[]}}
+function stripHtml(s=''){const d=document.createElement('div');d.innerHTML=s;return (d.textContent||'').replace(/\s+/g,' ').trim()}
+async function duckQuery(query,ean){try{
+ const html=await proxyText('https://html.duckduckgo.com/html/?q='+encodeURIComponent(query));
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const rows=[...doc.querySelectorAll('.result')].map(r=>{const a=r.querySelector('.result__a'),sn=r.querySelector('.result__snippet');if(!a)return null;let url=a.href;try{const u=new URL(url);const uddg=u.searchParams.get('uddg');if(uddg)url=decodeURIComponent(uddg)}catch(e){}let domain='';try{domain=new URL(url).hostname.replace(/^www\./,'')}catch(e){}return{url,title:stripHtml(a.innerHTML),snippet:stripHtml(sn?sn.innerHTML:''),domain,engine:'DuckDuckGo'}});return rows.filter(Boolean)
+}catch(e){return[]}}
+async function webSearch(ean){
+ const queries=['"'+ean+'"',ean+' EAN',ean+' GTIN'];
+ const batches=await Promise.all(queries.flatMap(q=>[bingQuery(q,ean),duckQuery(q,ean)]));
+ const all=normalizeWeb(batches.flat(),ean);
+ all.sort((a,b)=>(b.exact?1:0)-(a.exact?1:0));
+ const seenDomains=new Map(),out=[];
+ for(const x of all){const key=x.url.replace(/[?#].*$/,'');if(!out.some(y=>y.url.replace(/[?#].*$/,'')===key))out.push(x);if(out.length>=30)break}
+ return out
+}
 function pick(items,k){for(const x of items){if(x&&clean(x[k]))return x[k]}return''}
 function detail(l,v){return v?'<div class="detail"><span>'+esc(l)+'</span><b>'+esc(v)+'</b></div>':''}
-async function search(ean){show($('#loading'));go.disabled=true;drawMarkets(ean);try{
- const arr=await Promise.all([...facts.map(x=>oneFact(x[0],x[1],ean)),upc(ean),webSearch(ean)]);const web=arr.pop()||[],items=arr.filter(Boolean),best=web.find(x=>x.exact)||web[0]||null;
- if(!items.length&&!best){$('#errTitle').textContent='Товар пока не найден';$('#errText').textContent='EAN корректный, но открытые источники не вернули карточку. Справа можно проверить этот код на маркетплейсах.';show($('#error'));return}
- const title=pick(items,'title')||(best?best.title:'Товар '+ean);$('#title').textContent=title;$('#brand').textContent=pick(items,'brand')?'Бренд: '+pick(items,'brand'):'Бренд не определён';$('#code').textContent=ean;$('#desc').textContent=pick(items,'description')||(best?best.snippet:'');$('#status').textContent=items.length+' баз · '+web.length+' результатов в интернете';
- const im=pick(items,'image');$('#photo').innerHTML=im?'<img src="'+esc(im)+'" alt="" onerror="this.parentNode.textContent=\'▥\'">':'▥';
- let ds=[detail('Категория',pick(items,'category')),detail('Количество / объём',pick(items,'quantity')),detail('Модель',pick(items,'model')),detail('Вес',pick(items,'weight')),detail('Размер',pick(items,'dimension')),detail('Страна',pick(items,'countries')),detail('Производство',pick(items,'manufacturing'))].filter(Boolean);$('#details').innerHTML=ds.length?ds.join(''):'<div class="detail"><span>Данные</span><b>Дополнительные характеристики не указаны</b></div>';
- $('#webSec').style.display=web.length?'block':'none';$('#web').innerHTML=web.slice(0,8).map(x=>'<a class="web" target="_blank" rel="noopener" href="'+esc(x.url)+'"><b>'+esc(x.title)+'</b><small>'+esc(x.domain||x.url)+'</small>'+(x.snippet?'<p>'+esc(x.snippet)+'</p>':'')+'</a>').join('');show($('#result'));
-}catch(e){$('#errTitle').textContent='Сервис временно не ответил';$('#errText').textContent='Попробуйте поиск ещё раз. Сайт автоматически использует резервный способ доступа к открытым базам.';show($('#error'))}finally{go.disabled=false}}
-$('#form').onsubmit=e=>{e.preventDefault();const c=norm(input.value);input.value=c;if(!valid(c)){drawMarkets(c);$('#errTitle').textContent='Проверьте EAN';$('#errText').textContent='Нужен корректный EAN‑8, UPC‑A, EAN‑13 или GTIN‑14 с правильной контрольной цифрой.';show($('#error'));return}search(c)}
+function cleanTitle(t,ean){return clean(t).replace(new RegExp('^'+ean+'\\s*[-–—:|]?\\s*'),'').replace(/\s+[-–—|]\s+[^-–—|]{1,60}$/,'').trim()}
+
+async function search(ean){
+ show($('#loading'));go.disabled=true;engines(ean);$('#domainCount').textContent='…';$('#resultCount').textContent='…';
+ try{
+  const arr=await Promise.all([...facts.map(x=>oneFact(x[0],x[1],ean)),upc(ean),webSearch(ean)]);
+  const web=arr.pop()||[],items=arr.filter(Boolean),best=web.find(x=>x.exact)||web[0]||null;
+  const domains=[...new Set(web.map(x=>x.domain).filter(Boolean))];
+  $('#domainCount').textContent=domains.length;$('#resultCount').textContent=web.length;
+
+  if(!items.length&&!best){
+   $('#errTitle').textContent='Товар пока не найден в интернете';
+   $('#errText').textContent='EAN корректный, но автоматический веб‑поиск не вернул индексируемых страниц. Справа можно открыть этот же точный запрос в поисковиках.';
+   show($('#error'));return
+  }
+
+  const title=pick(items,'title')||(best?cleanTitle(best.title,ean):'Товар '+ean);
+  $('#title').textContent=title||('Товар '+ean);
+  $('#brand').textContent=pick(items,'brand')?'Бренд: '+pick(items,'brand'):'Бренд автоматически не определён';
+  $('#code').textContent=ean;
+  $('#desc').textContent=pick(items,'description')||(best?best.snippet:'');
+  $('#status').textContent=web.length+' страниц · '+domains.length+' сайтов';
+
+  const im=pick(items,'image');
+  $('#photo').innerHTML=im?'<img src="'+esc(im)+'" alt="" onerror="this.parentNode.textContent=\'▥\'">':'▥';
+
+  const ds=[
+   detail('Категория',pick(items,'category')),
+   detail('Количество / объём',pick(items,'quantity')),
+   detail('Модель',pick(items,'model')),
+   detail('Вес',pick(items,'weight')),
+   detail('Размер',pick(items,'dimension')),
+   detail('Страна',pick(items,'countries')),
+   detail('Производство',pick(items,'manufacturing'))
+  ].filter(Boolean);
+  $('#details').innerHTML=ds.length?ds.join(''):'<div class="detail"><span>Данные</span><b>Характеристики в открытых товарных базах не указаны — смотрите найденные страницы ниже.</b></div>';
+
+  $('#webSec').style.display=web.length?'block':'none';
+  $('#web').innerHTML=web.map(x=>'<a class="web" target="_blank" rel="noopener" href="'+esc(x.url)+'"><div class="webtop"><b>'+esc(x.title||x.domain||x.url)+'</b>'+(x.exact?'<span class="exact">точное совпадение</span>':'')+'</div><small>'+esc(x.domain||x.url)+' · '+esc(x.engine||'web')+'</small>'+(x.snippet?'<p>'+esc(x.snippet)+'</p>':'')+'</a>').join('');
+  show($('#result'));
+ }catch(e){
+  $('#domainCount').textContent='0';$('#resultCount').textContent='0';
+  $('#errTitle').textContent='Веб‑поиск временно не ответил';
+  $('#errText').textContent='Попробуйте ещё раз через несколько секунд. Сайт использует несколько публичных источников и резервный прокси.';
+  show($('#error'))
+ }finally{go.disabled=false}
+}
+$('#form').onsubmit=e=>{e.preventDefault();const c=norm(input.value);input.value=c;if(!valid(c)){engines(c);$('#errTitle').textContent='Проверьте EAN';$('#errText').textContent='Нужен корректный EAN‑8, UPC‑A, EAN‑13 или GTIN‑14 с правильной контрольной цифрой.';show($('#error'));return}search(c)}
 $('#ex').onclick=()=>{input.value='8592223035492';input.focus()}
 </script></body></html>
